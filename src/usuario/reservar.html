@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reservar Cancha</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* --- Estilos generales --- */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+    h1 {
+      text-align: center;
+      color: #3b2f63;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+    select, input[type="date"], input[type="file"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+    .horas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .hora-btn {
+      padding: 0.5rem;
+      text-align: center;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      user-select: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      font-size: 0.95rem;
+    }
+    .hora-btn.selected {
+      background-color: #3b2f63;
+      color: #fff;
+    }
+    .hora-btn.ocupada {
+      background-color: #ccc;
+      cursor: not-allowed;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .precio-info {
+      margin-top: 1.2rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      white-space: pre-line;
+      min-height: 48px;
+    }
+    .submit-btn {
+      width: 100%;
+      margin-top: 2rem;
+      padding: 0.8rem;
+      background-color: #3b2f63;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .submit-btn:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+    .mensaje {
+      margin-top: 1rem;
+      font-weight: 600;
+      text-align: center;
+      min-height: 20px;
+    }
+    .error { color: red; }
+    .exito { color: green; }
+
+    /* QR container */
+    .qr-container {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .qr-container img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .qr-text {
+      margin-top: 0.5rem;
+      font-weight: 600;
+      color: #3b2f63;
+    }
+
+    /* --- Modal voucher --- */
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      left: 0; top: 0;
+      width: 100%; height: 100%; 
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6);
+      font-family: 'Montserrat', sans-serif;
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 2rem 2rem 3rem 2rem;
+      border-radius: 15px;
+      max-width: 500px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      position: relative;
+      color: #333;
+      box-sizing: border-box;
+    }
+    .modal-header {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #3b2f63;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.3s ease;
+    }
+    .modal-close:hover {
+      color: #3b2f63;
+    }
+    .modal-body {
+      font-size: 1rem;
+      line-height: 1.5;
+      white-space: pre-line;
+      margin-bottom: 1rem;
+    }
+    .modal-footer {
+      text-align: center;
+    }
+    .btn-print {
+      background-color: #3b2f63;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.5rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    .btn-print:hover {
+      background-color: #5a4d8a;
+    }
+
+    /* Botón atrás modal */
+    .btn-back {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      background: none;
+      border: none;
+      color: #3b2f63;
+      font-size: 1.4rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.3s ease;
+      user-select: none;
+    }
+    .btn-back:hover {
+      color: #5a4d8a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-calendar-check"></i> Reserva tu Cancha</h1>
+    <form id="reservaForm">
+      <label for="canchaSelect">Tipo de Cancha</label>
+      <select id="canchaSelect" required>
+        <option value="">Seleccione una cancha</option>
+      </select>
+
+      <label for="fecha">Fecha</label>
+      <input type="date" id="fecha" required />
+
+      <label>Horas (puedes seleccionar varias)</label>
+      <div class="horas-grid" id="horasGrid"></div>
+
+      <label for="comprobante">Comprobante de pago (adelanto 50%)</label>
+      <input type="file" id="comprobante" accept="image/*" required />
+
+      <div class="precio-info" id="precioInfo">Selecciona una hora para ver el precio.</div>
+
+      <button class="submit-btn" type="submit" id="submitBtn" disabled>Reservar</button>
+      <div class="mensaje" id="mensajeEstado"></div>
+    </form>
+
+    <div class="qr-container">
+      <img src="../common/assets/qr/QR.jpg" alt="QR Yape para pago presencial" />
+      <div class="qr-text">Escanea este QR para pagar el saldo restante en Yape presencialmente</div>
+    </div>
+  </div>
+
+  <!-- Modal voucher -->
+  <div id="voucherModal" class="modal" aria-modal="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <button class="btn-back" id="btnBack" title="Regresar a home">
+        <i class="fas fa-arrow-left"></i> Atrás
+      </button>
+      <span class="modal-close" id="modalClose" title="Cerrar">&times;</span>
+      <div class="modal-header" id="modalTitle">Voucher de Reserva</div>
+      <div class="modal-body" id="voucherContent">
+        <!-- Aquí se mostrará la info generada -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-print" id="btnPrint">Imprimir Voucher</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const canchaSelect = document.getElementById('canchaSelect');
+    const fecha = document.getElementById('fecha');
+    const horasGrid = document.getElementById('horasGrid');
+    const submitBtn = document.getElementById('submitBtn');
+    const comprobante = document.getElementById('comprobante');
+    const mensajeEstado = document.getElementById('mensajeEstado');
+    const precioInfo = document.getElementById('precioInfo');
+
+    const voucherModal = document.getElementById('voucherModal');
+    const modalClose = document.getElementById('modalClose');
+    const voucherContent = document.getElementById('voucherContent');
+    const btnPrint = document.getElementById('btnPrint');
+    const btnBack = document.getElementById('btnBack');
+
+    const horas = [
+      '10:00', '11:00', '12:00', '13:00', '14:00',
+      '15:00', '16:00', '17:00', '18:00',
+      '19:00', '20:00', '21:00', '22:00', '23:00'
+    ];
+
+    const hoy = new Date().toISOString().split('T')[0];
+    fecha.setAttribute('min', hoy);
+
+    let horasSeleccionadas = [];
+    let precioTotal = 0;
+
+    async function cargarCanchas() {
+      const snapshot = await db.collection('canchas').get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const opt = document.createElement('option');
+        opt.value = doc.id;
+        opt.textContent = `${data.nombre} - ${data.lugar}`;
+        opt.dataset.precioDia = data.precioDia;
+        opt.dataset.precioNoche = data.precioNoche;
+        canchaSelect.appendChild(opt);
+      });
+    }
+
+    canchaSelect.addEventListener('change', actualizarHoras);
+    fecha.addEventListener('change', actualizarHoras);
+
+    async function actualizarHoras() {
+      horasSeleccionadas = [];
+      precioTotal = 0;
+      precioInfo.textContent = 'Selecciona una hora para ver el precio.';
+      submitBtn.disabled = true;
+      horasGrid.innerHTML = '';
+      mensajeEstado.textContent = '';
+
+      if (!canchaSelect.value || !fecha.value) return;
+
+      const cancha = canchaSelect.value;
+      const reservas = await db.collection('reservas')
+        .where('canchaId', '==', cancha)
+        .where('fecha', '==', fecha.value)
+        .get();
+
+      const horasOcupadas = reservas.docs.flatMap(doc => {
+        const data = doc.data();
+        if (Array.isArray(data.horas)) return data.horas;
+        if (typeof data.hora === 'string') return [data.hora];
+        return [];
+      });
+
+      horas.forEach(hora => {
+        const div = document.createElement('div');
+        div.className = 'hora-btn';
+        div.textContent = hora;
+
+        if (horasOcupadas.includes(hora)) {
+          div.classList.add('ocupada');
+        } else {
+          div.addEventListener('click', () => seleccionarHora(div, hora));
+        }
+
+        horasGrid.appendChild(div);
+      });
+    }
+
+    function seleccionarHora(btn, hora) {
+      const index = horasSeleccionadas.indexOf(hora);
+      if (index === -1) {
+        horasSeleccionadas.push(hora);
+        btn.classList.add('selected');
+      } else {
+        horasSeleccionadas.splice(index, 1);
+        btn.classList.remove('selected');
+      }
+
+      horasSeleccionadas.sort((a,b) => parseInt(a.split(':')[0]) - parseInt(b.split(':')[0]));
+
+      const precioDia = parseFloat(canchaSelect.selectedOptions[0].dataset.precioDia);
+      const precioNoche = parseFloat(canchaSelect.selectedOptions[0].dataset.precioNoche);
+
+      let total = 0;
+      horasSeleccionadas.forEach(h => {
+        const horaInt = parseInt(h.split(':')[0]);
+        const esDia = horaInt >= 10 && horaInt < 18;
+        total += esDia ? precioDia : precioNoche;
+      });
+
+      precioTotal = total;
+      const adelanto = (precioTotal / 2).toFixed(2);
+
+      if (horasSeleccionadas.length > 0) {
+        precioInfo.textContent = `Horas seleccionadas: ${horasSeleccionadas.join(', ')}\nPrecio total: S/${precioTotal.toFixed(2)} - Pagar ahora (50%): S/${adelanto}`;
+      } else {
+        precioInfo.textContent = 'Selecciona una hora para ver el precio.';
+      }
+
+      validar();
+    }
+
+    comprobante.addEventListener('change', validar);
+
+    function validar() {
+      submitBtn.disabled = !(horasSeleccionadas.length > 0 && comprobante.files.length > 0);
+    }
+
+    modalClose.onclick = () => {
+      voucherModal.style.display = "none";
+    };
+
+    window.onclick = (event) => {
+      if (event.target === voucherModal) {
+        voucherModal.style.display = "none";
+      }
+    };
+
+    btnBack.onclick = () => {
+      // Redirige a home-usuario.html
+      window.location.href = 'home-usuario.html';
+    };
+
+    btnPrint.onclick = () => {
+      // Solo imprime el contenido del modal
+      const originalContents = document.body.innerHTML;
+      const printContents = voucherContent.innerHTML;
+      document.body.innerHTML = printContents;
+      window.print();
+      document.body.innerHTML = originalContents;
+      location.reload();
+    };
+
+    document.getElementById('reservaForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      mensajeEstado.textContent = 'Enviando reserva...';
+      mensajeEstado.className = '';
+
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Debes iniciar sesión.');
+
+        const archivo = comprobante.files[0];
+        if (archivo.size > 2 * 1024 * 1024) throw new Error('Comprobante debe pesar menos de 2MB');
+
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = err => reject(err);
+          reader.readAsDataURL(archivo);
+        });
+
+        const reserva = {
+          usuarioId: user.uid,
+          canchaId: canchaSelect.value,
+          fecha: fecha.value,
+          horas: horasSeleccionadas,
+          precioTotal,
+          adelanto: precioTotal / 2,
+          comprobanteBase64: base64,
+          estado: 'pendiente',
+          creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection('reservas').add(reserva);
+
+        mensajeEstado.textContent = 'Reserva enviada con éxito. Revisa tu voucher abajo.';
+        mensajeEstado.className = 'mensaje exito';
+
+        // Obtener datos usuario para mostrar en voucher
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        const userData = userDoc.exists ? userDoc.data() : {};
+
+        // Datos cancha para voucher
+        const canchaOption = canchaSelect.selectedOptions[0].textContent;
+
+        // Crear contenido voucher
+        voucherContent.innerHTML = `
+          <p><strong>Usuario:</strong> ${userData.nombre || 'No disponible'}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Cancha:</strong> ${canchaOption}</p>
+          <p><strong>Fecha:</strong> ${fecha.value}</p>
+          <p><strong>Horas:</strong> ${horasSeleccionadas.join(', ')}</p>
+          <p><strong>Precio total:</strong> S/${precioTotal.toFixed(2)}</p>
+          <p><strong>Adelanto pagado:</strong> S/${(precioTotal/2).toFixed(2)}</p>
+          <p><strong>Estado:</strong> Pendiente de confirmación</p>
+          <hr>
+          <p>Presenta este voucher junto con tu comprobante de pago para acceder a la cancha.</p>
+        `;
+
+        // Mostrar modal
+        voucherModal.style.display = 'block';
+
+        // Reset formulario
+        canchaSelect.value = '';
+        fecha.value = '';
+        horasGrid.innerHTML = '';
+        precioInfo.textContent = 'Selecciona una hora para ver el precio.';
+        comprobante.value = '';
+        horasSeleccionadas = [];
+        precioTotal = 0;
+        submitBtn.disabled = true;
+
+      } catch (err) {
+        console.error(err);
+        mensajeEstado.textContent = err.message || 'Error al enviar reserva.';
+        mensajeEstado.className = 'mensaje error';
+        submitBtn.disabled = false;
+      }
+    });
+
+    cargarCanchas();
+  </script>
+</body>
+</html>

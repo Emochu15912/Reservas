@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calendario de Disponibilidad | Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css" rel="stylesheet" />
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; margin:0; background:#f4f4f4; }
+    header { background:#4a148c; color:#fff; padding:20px; text-align:center; position:relative; }
+    #calendar { max-width: 90%; margin: 40px auto; background:#fff; padding:20px; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .btn-regresar {
+      position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+      background:#6a1b9a; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:bold; text-decoration:none;
+    }
+    .btn-regresar:hover { background:#4a148c; color:#fff; text-decoration:none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="admin.html" class="btn-regresar">← Volver</a>
+  <h2>📆 Calendario de Disponibilidad de Canchas</h2>
+</header>
+
+<div id="calendar"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<!-- Firebase Config -->
+<script src="../common/js/firebase-config.js"></script>
+
+<!-- FullCalendar JS (sin module) -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.js"></script>
+
+<!-- Tu script personalizado (sin module) -->
+<script src="./js/admin-calendario.js"></script>
+
+</body>
+</html>

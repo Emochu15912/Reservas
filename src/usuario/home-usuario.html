@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reserva de Canchas - Inicio</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    /* Estilos base (igual que los que me diste) */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: #e8f0fe;
+      color: #1a237e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background-color: #1a237e;
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(26,35,126,0.5);
+    }
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      flex: 1 1 200px;
+    }
+    .header-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .header-buttons button {
+      background: #ff7043;
+      border: none;
+      color: white;
+      padding: 0.55rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background-color 0.3s ease;
+    }
+    .header-buttons button:hover {
+      background: #f4511e;
+    }
+    .container {
+      flex-grow: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .search-bar {
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+    .search-bar input {
+      width: 100%;
+      max-width: 600px;
+      padding: 0.9rem 1.2rem;
+      font-size: 1.1rem;
+      border-radius: 12px;
+      border: 2px solid #1a237e;
+      box-shadow: 0 4px 8px rgba(26,35,126,0.15);
+    }
+    .search-bar input:focus {
+      border-color: #ff7043;
+      outline: none;
+      box-shadow: 0 0 8px 2px rgba(255,112,67,0.5);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.8rem;
+      opacity: 0;
+      animation: fadeIn 0.8s forwards ease-in-out;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+    .card {
+      background-color: white;
+      border-radius: 20px;
+      padding: 1.8rem 2rem;
+      box-shadow: 0 10px 25px rgba(26,35,126,0.1);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 30px rgba(255,112,67,0.35);
+    }
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 0.8rem;
+      font-weight: 700;
+      color: #1a237e;
+      font-size: 1.4rem;
+    }
+    .card p {
+      margin: 0.3rem 0;
+      font-size: 1rem;
+      color: #555;
+    }
+    .status {
+      margin: 1rem 0;
+      font-weight: 700;
+      color: #388e3c;
+      font-size: 1.1rem;
+    }
+    .status.ocupada {
+      color: #d32f2f;
+    }
+    .card button {
+      background-color: #ff7043;
+      border: none;
+      padding: 0.65rem 1.3rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .card button:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+    .card button:hover:not(:disabled) {
+      background-color: #f4511e;
+    }
+    footer {
+      text-align: center;
+      padding: 1.8rem 1rem;
+      font-size: 0.9rem;
+      color: #666;
+      background: #fff;
+      box-shadow: 0 -2px 8px rgba(26,35,126,0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bienvenido, <span id="nombreUsuario" aria-live="polite">Usuario</span></h1>
+    <nav class="header-buttons" role="navigation" aria-label="Navegación principal">
+      <button id="btnMisReservas" aria-label="Ir a mis reservas">
+        <i class="fas fa-calendar-check"></i> Mis Reservas
+      </button>
+      <button id="btnPerfil" aria-label="Ir al perfil de usuario">
+        <i class="fas fa-user-circle"></i> Perfil
+      </button>
+      <button id="btnLogout" aria-label="Cerrar sesión">
+        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+      </button>
+    </nav>
+  </header>
+
+  <main class="container" role="main">
+    <section aria-label="Buscar canchas disponibles">
+      <div class="search-bar">
+        <input
+          type="search"
+          id="searchInput"
+          placeholder="Buscar cancha..."
+          aria-label="Buscar cancha"
+          autocomplete="off"
+        />
+      </div>
+    </section>
+
+    <section id="contenedorCanchas" class="grid" aria-live="polite" aria-relevant="additions">
+      <!-- Tarjetas de canchas se insertarán aquí -->
+    </section>
+  </main>
+
+  <footer>
+    © 2025 ReservaCancha - Todos los derechos reservados.
+  </footer>
+
+  <!-- Firebase -->
+  <!-- Firebase Core -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+
+  <!-- Configuración e inicialización Firebase -->
+  <script src="../common/js/firebase-config.js"></script>
+
+  <!-- Lógica de la página -->
+  <script src="./js/home-usuario.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comprobante de Pago</title>
+  <link rel="stylesheet" href="../common/css/styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+  <header>
+    <h1>Comprobante de Pago</h1>
+  </header>
+  <main>
+    <section id="voucher-detail"></section>
+  </main>
+
+  <script src="../common/js/firebase-config.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const reservaId = urlParams.get("id");
+
+    const db = firebase.firestore();
+    const voucherDetail = document.getElementById("voucher-detail");
+
+    db.collection("reservas").doc(reservaId).get().then(doc => {
+      if (!doc.exists) {
+        voucherDetail.innerHTML = '<p>Reserva no encontrada.</p>';
+        return;
+      }
+      const r = doc.data();
+      voucherDetail.innerHTML = `
+        <h2>${r.nombreCancha}</h2>
+        <p><strong>Fecha:</strong> ${r.fecha}</p>
+        <p><strong>Hora:</strong> ${r.hora}</p>
+        <p><strong>Estado:</strong> ${r.estado}</p>
+        <p><strong>Total:</strong> S/ ${r.total}</p>
+        <p><strong>Pagado:</strong> S/ ${r.montoPago || 0}</p>
+        <p><strong>Comprobante:</strong></p>
+        ${r.comprobanteUrl ? `<img src="${r.comprobanteUrl}" alt="Comprobante" style="width:100%;max-width:300px">` : '<p>No hay comprobante registrado.</p>'}
+      `;
+    });
+  </script>
+</body>
+</html>

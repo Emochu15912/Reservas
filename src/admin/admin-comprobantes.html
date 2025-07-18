@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestión de Comprobantes | Admin</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff8f1;
+      color: #3e2723;
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #ffcc80;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 25px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 2rem;
+      color: #4e342e;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background-color: #ffe0b2;
+      color: #4e342e;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    tbody tr:hover {
+      background-color: #fff3e0;
+    }
+
+    img.comprobante-img {
+      max-width: 80px;
+      max-height: 80px;
+      border-radius: 8px;
+      object-fit: contain;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    img.comprobante-img:hover {
+      transform: scale(1.2);
+    }
+
+    .btn {
+      padding: 7px 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+      color: white;
+    }
+
+    .btn.aprobar {
+      background-color: #388e3c;
+    }
+
+    .btn.aprobar:hover {
+      background-color: #2e7d32;
+    }
+
+    .btn.rechazar {
+      background-color: #d32f2f;
+    }
+
+    .btn.rechazar:hover {
+      background-color: #b71c1c;
+    }
+
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        display: none;
+      }
+      tbody tr {
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        padding: 15px;
+        background: #fff8f0;
+      }
+      td {
+        padding: 8px 12px;
+        position: relative;
+        text-align: right;
+        border: none;
+        border-bottom: 1px solid #eee;
+      }
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 12px;
+        font-weight: 700;
+        color: #6d4c41;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        top: 8px;
+      }
+      .acciones {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Gestión de Comprobantes de Pago</h1>
+  </header>
+
+  <section class="container">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Cancha</th>
+          <th>Fecha de Reserva</th>
+          <th>Estado</th>
+          <th>Comprobante</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="comprobantes-body">
+        <!-- Comprobantes cargados dinámicamente -->
+      </tbody>
+    </table>
+  </section>
+ <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+<script src="../common/js/firebase-config.js"></script>  <!-- Sin type=module -->
+<script src="../common/js/auth.js"></script>             <!-- Sin type=module -->
+<script src="./js/admin-comprobantes.js"></script>       <!-- Sin type=module -->
+
+</body>
+</html>

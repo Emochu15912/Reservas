@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estadísticas | ReservaCancha</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #1e1e3f, #3b2f63);
+      color: #eee;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffd54f;
+      margin-bottom: 2rem;
+    }
+
+    .charts-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .chart-card {
+      background-color: #3b2f63cc;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    }
+
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    .loading {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #ffd54f;
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Estadísticas Generales</h1>
+
+  <div id="loading" class="loading">Cargando datos...</div>
+
+  <div class="charts-container" style="display:none;" id="chartsContainer">
+    <div class="chart-card">
+      <h2 style="color:#fff">Cantidad de Canchas por Tipo</h2>
+      <canvas id="canchasPorTipo"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h2 style="color:#fff">Canchas Disponibles vs No Disponibles</h2>
+      <canvas id="canchasDisponibilidad"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h2 style="color:#fff">Usuarios por Rol</h2>
+      <canvas id="usuariosPorRol"></canvas>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs - carga en orden correcto -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <!-- Tu archivo con la configuración e inicialización de Firebase -->
+  <script src="../common/js/firebase-config.js"></script>
+
+  <script>
+    const db = firebase.firestore();
+
+    let chartCanchasTipo, chartCanchasDisp, chartUsuariosRol;
+
+    async function cargarDatos() {
+      try {
+        // Leer canchas
+        const canchasSnap = await db.collection('canchas').get();
+        const tipoCounts = {};
+        let disponibles = 0;
+        let noDisponibles = 0;
+
+        canchasSnap.forEach(doc => {
+          const data = doc.data();
+          const tipo = data.tipo || 'Desconocido';
+          tipoCounts[tipo] = (tipoCounts[tipo] || 0) + 1;
+
+          if (data.disponibilidad === true) disponibles++;
+          else noDisponibles++;
+        });
+
+        // Leer usuarios
+        const usuariosSnap = await db.collection('usuarios').get();
+        const rolCounts = {};
+
+        usuariosSnap.forEach(doc => {
+          const data = doc.data();
+          const rol = data.rol || 'Desconocido';
+          rolCounts[rol] = (rolCounts[rol] || 0) + 1;
+        });
+
+        // Ocultar loading y mostrar contenedor
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('chartsContainer').style.display = 'grid';
+
+        // Crear los gráficos con los datos obtenidos
+        crearGraficos(tipoCounts, disponibles, noDisponibles, rolCounts);
+
+      } catch (error) {
+        document.getElementById('loading').textContent = 'Error al cargar datos: ' + error.message;
+        console.error(error);
+      }
+    }
+
+    function crearGraficos(tipoCounts, disp, noDisp, rolCounts) {
+      const ctxTipo = document.getElementById('canchasPorTipo').getContext('2d');
+      const ctxDisp = document.getElementById('canchasDisponibilidad').getContext('2d');
+      const ctxRol = document.getElementById('usuariosPorRol').getContext('2d');
+
+      // Canchas por tipo
+      const tipos = Object.keys(tipoCounts);
+      const cantidadesTipo = Object.values(tipoCounts);
+      const coloresTipo = ['#ffd54f', '#ff8a65', '#4db6ac', '#9575cd', '#ba68c8', '#f06292'];
+
+      chartCanchasTipo = new Chart(ctxTipo, {
+        type: 'bar',
+        data: {
+          labels: tipos,
+          datasets: [{
+            label: 'Cantidad',
+            data: cantidadesTipo,
+            backgroundColor: coloresTipo.slice(0, tipos.length),
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: { label: ctx => `Canchas: ${ctx.parsed.y}` }
+            }
+          },
+          scales: { y: { beginAtZero: true, stepSize: 1 } }
+        }
+      });
+
+      // Canchas disponibles vs no disponibles
+      chartCanchasDisp = new Chart(ctxDisp, {
+        type: 'doughnut',
+        data: {
+          labels: ['Disponibles', 'No disponibles'],
+          datasets: [{
+            label: 'Disponibilidad',
+            data: [disp, noDisp],
+            backgroundColor: ['#81c784', '#e57373']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#fff' }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.label}: ${ctx.parsed}`
+              }
+            }
+          }
+        }
+      });
+
+      // Usuarios por rol
+      const roles = Object.keys(rolCounts);
+      const cantidadesRol = Object.values(rolCounts);
+      const coloresRol = ['#ffd54f', '#4fc3f7', '#81c784', '#ffb74d'];
+
+      chartUsuariosRol = new Chart(ctxRol, {
+        type: 'doughnut',
+        data: {
+          labels: roles,
+          datasets: [{
+            label: 'Usuarios',
+            data: cantidadesRol,
+            backgroundColor: coloresRol.slice(0, roles.length),
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#fff' } },
+            tooltip: {
+              callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed}` }
+            }
+          }
+        }
+      });
+    }
+
+    window.onload = cargarDatos;
+  </script>
+</body>
+</html>

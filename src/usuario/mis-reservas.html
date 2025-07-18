@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Reservas - Usuario</title>
+  <link rel="stylesheet" href="../common/css/styles.css">
+  <!-- Firebase Core -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+</head>
+
+<body>
+  <header>
+    <h1>Mis Reservas</h1>
+  </header>
+  <main>
+    <section id="reservas-list"></section>
+  </main>
+
+  <script src="../common/js/firebase-config.js"></script>
+  <script>
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) window.location.href = "../../index.html";
+
+    const db = firebase.firestore();
+    const reservasList = document.getElementById("reservas-list");
+
+    db.collection("reservas").where("uid", "==", user.uid).orderBy("fecha", "desc")
+      .onSnapshot(snapshot => {
+        reservasList.innerHTML = "";
+        if (snapshot.empty) {
+          reservasList.innerHTML = '<p>No tienes reservas registradas.</p>';
+          return;
+        }
+        snapshot.forEach(doc => {
+          const r = doc.data();
+          const div = document.createElement("div");
+          div.className = "reserva-card";
+          div.innerHTML = `
+            <h3>${r.nombreCancha}</h3>
+            <p><strong>Fecha:</strong> ${r.fecha}</p>
+            <p><strong>Hora:</strong> ${r.hora}</p>
+            <p><strong>Estado:</strong> ${r.estado}</p>
+            <p><strong>Total:</strong> S/ ${r.total}</p>
+            <p><strong>Pagado:</strong> S/ ${r.montoPago || 0}</p>
+            <p><a href="voucher.html?id=${doc.id}">Ver Comprobante</a></p>
+          `;
+          reservasList.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestión de Usuarios - Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+      color: #333;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #343a40;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+    }
+
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .search-container input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 250px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    table th, table td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    table th {
+      background-color: #f0f0f0;
+    }
+
+    .acciones {
+      display: flex;
+      gap: 10px;
+    }
+
+    .acciones button {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s ease;
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .acciones button:hover {
+      background-color: #bd2130;
+    }
+
+    .bi {
+      margin-right: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .search-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      table th, table td {
+        font-size: 0.9rem;
+      }
+
+      header h1 {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><i class="bi bi-people-fill"></i> Gestión de Usuarios</h1>
+    <button onclick="window.location.href='admin.html'" style="background:#ffc107; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+      <i class="bi bi-arrow-left"></i> Volver
+    </button>
+  </header>
+
+  <div class="container">
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Buscar usuario por nombre o correo..." oninput="filterUsers()">
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody">
+        <!-- Usuarios cargados dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Firebase SDKs compatibles -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <!-- Configuración Firebase (sin módulos) -->
+  <script src="../common/js/firebase-config.js"></script>
+  <!-- Script de autenticación, si tienes -->
+  <script src="../common/js/auth.js"></script>
+  <!-- Script usuarios -->
+  <script src="./js/usuarios.js"></script>
+</body>
+</html>
