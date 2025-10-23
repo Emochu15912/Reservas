@@ -1,61 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mis Reservas - Usuario</title>
-  <link rel="stylesheet" href="../common/css/styles.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Estilos generales -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', sans-serif; background: #e8f0fe; color: #1a237e; min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: #1a237e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(26,35,126,0.5); }
+    header h1 { font-size: 1.6rem; }
+    .header-buttons { display: flex; gap: 1rem; }
+    .header-buttons button { background: #ff7043; border: none; color: white; padding: 0.55rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; transition: background-color 0.3s ease; }
+    .header-buttons button:hover { background: #f4511e; }
+    main { flex-grow: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+    #reservas-list { display: grid; gap: 1.5rem; }
+    .reserva-card { background: white; padding: 1.5rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(26,35,126,0.1); }
+    .reserva-card h3 { margin-bottom: 0.5rem; color: #1a237e; }
+    .reserva-card p { margin: 0.3rem 0; }
+    .reserva-card a { color: #ff7043; font-weight: 600; text-decoration: none; }
+    .reserva-card a:hover { text-decoration: underline; }
+    footer { text-align: center; padding: 1.5rem; background: #fff; box-shadow: 0 -2px 8px rgba(26,35,126,0.1); font-size: 0.9rem; color: #666; }
+  </style>
+
   <!-- Firebase Core -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-
-<!-- Firebase Auth -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
-<!-- Firebase Firestore -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
 </head>
-
 <body>
   <header>
     <h1>Mis Reservas</h1>
+    <nav class="header-buttons">
+      <button id="btnHome"><i class="fas fa-home"></i> Inicio</button>
+      <button id="btnPerfil"><i class="fas fa-user-circle"></i> Perfil</button>
+      <button id="btnLogout"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+    </nav>
   </header>
+
   <main>
     <section id="reservas-list"></section>
   </main>
 
-  <script src="../common/js/firebase-config.js"></script>
-  <script>
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) window.location.href = "../../index.html";
+  <footer>
+    © 2025 HEPSU - Todos los derechos reservados.
+  </footer>
 
+  <script>
+    const auth = firebase.auth();
     const db = firebase.firestore();
     const reservasList = document.getElementById("reservas-list");
 
-    db.collection("reservas").where("uid", "==", user.uid).orderBy("fecha", "desc")
-      .onSnapshot(snapshot => {
-        reservasList.innerHTML = "";
+    // Botones header
+    document.getElementById("btnHome").addEventListener("click", () => { window.location.href = 'home-usuario.html'; });
+    document.getElementById("btnPerfil").addEventListener("click", () => { window.location.href = 'perfil.html'; });
+    document.getElementById("btnLogout").addEventListener("click", async () => {
+      try {
+        await auth.signOut();
+        window.location.href = 'index.html';
+      } catch(err) {
+        console.error('Error al cerrar sesión:', err);
+        alert('No se pudo cerrar sesión. Intenta de nuevo.');
+      }
+    });
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      try {
+        // Traer todas las reservas del usuario
+        const snapshot = await db.collection('reservas')
+          .where('usuarioId', '==', user.uid)
+          .get();
+
         if (snapshot.empty) {
           reservasList.innerHTML = '<p>No tienes reservas registradas.</p>';
           return;
         }
-        snapshot.forEach(doc => {
-          const r = doc.data();
-          const div = document.createElement("div");
+
+        // Convertimos a array y ordenamos por fecha descendente
+        const reservas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        reservas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        reservasList.innerHTML = '';
+        reservas.forEach(r => {
+          const div = document.createElement('div');
           div.className = "reserva-card";
           div.innerHTML = `
-            <h3>${r.nombreCancha}</h3>
+            <h3>${r.nombreCancha || 'Cancha'}</h3>
             <p><strong>Fecha:</strong> ${r.fecha}</p>
-            <p><strong>Hora:</strong> ${r.hora}</p>
-            <p><strong>Estado:</strong> ${r.estado}</p>
-            <p><strong>Total:</strong> S/ ${r.total}</p>
-            <p><strong>Pagado:</strong> S/ ${r.montoPago || 0}</p>
-            <p><a href="voucher.html?id=${doc.id}">Ver Comprobante</a></p>
+            <p><strong>Horas:</strong> ${Array.isArray(r.horas) ? r.horas.join(', ') : r.hora || ''}</p>
+            <p><strong>Estado:</strong> ${r.estado || 'Pendiente'}</p>
+            <p><strong>Total:</strong> S/ ${r.precioTotal || 0}</p>
+            <p><strong>Pagado:</strong> S/ ${r.adelanto || 0}</p>
+            <p><a href="voucher.html?id=${r.id}">Ver Comprobante</a></p>
           `;
           reservasList.appendChild(div);
         });
-      });
+
+      } catch (err) {
+        console.error(err);
+        reservasList.innerHTML = '<p>Error al cargar tus reservas.</p>';
+      }
+    });
   </script>
 </body>
 </html>

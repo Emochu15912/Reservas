@@ -1,47 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comprobante de Pago</title>
-  <link rel="stylesheet" href="../common/css/styles.css">
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-</head>
 
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Montserrat', sans-serif; background: #e8f0fe; color: #1a237e; min-height: 100vh; margin:0; padding:0; }
+    header { background-color: #1a237e; color: white; padding: 1rem 2rem; box-shadow: 0 4px 15px rgba(26,35,126,0.5); display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.6rem; margin:0; }
+    header button { background: #ff7043; border: none; padding: 0.5rem 1rem; border-radius: 8px; color: white; cursor: pointer; font-weight: 700; }
+    header button:hover { background: #f4511e; }
+    main { padding: 2rem; max-width: 800px; margin: 0 auto; }
+    #voucher-detail { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(26,35,126,0.1); }
+    #voucher-detail h2 { color: #1a237e; margin-bottom: 1rem; }
+    #voucher-detail p { margin: 0.5rem 0; }
+    #voucher-detail img { width: 100%; max-width: 300px; margin-top: 0.5rem; border-radius: 10px; }
+  </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+</head>
 <body>
   <header>
     <h1>Comprobante de Pago</h1>
+    <button id="btnRegresar"><i class="fas fa-arrow-left"></i> Regresar</button>
   </header>
+
   <main>
     <section id="voucher-detail"></section>
   </main>
 
-  <script src="../common/js/firebase-config.js"></script>
   <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const voucherDetail = document.getElementById("voucher-detail");
+    const btnRegresar = document.getElementById("btnRegresar");
     const urlParams = new URLSearchParams(window.location.search);
     const reservaId = urlParams.get("id");
 
-    const db = firebase.firestore();
-    const voucherDetail = document.getElementById("voucher-detail");
+    btnRegresar.addEventListener('click', () => {
+      window.location.href = 'mis-reservas.html';
+    });
 
-    db.collection("reservas").doc(reservaId).get().then(doc => {
-      if (!doc.exists) {
-        voucherDetail.innerHTML = '<p>Reserva no encontrada.</p>';
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        window.location.href = 'index.html';
         return;
       }
-      const r = doc.data();
-      voucherDetail.innerHTML = `
-        <h2>${r.nombreCancha}</h2>
-        <p><strong>Fecha:</strong> ${r.fecha}</p>
-        <p><strong>Hora:</strong> ${r.hora}</p>
-        <p><strong>Estado:</strong> ${r.estado}</p>
-        <p><strong>Total:</strong> S/ ${r.total}</p>
-        <p><strong>Pagado:</strong> S/ ${r.montoPago || 0}</p>
-        <p><strong>Comprobante:</strong></p>
-        ${r.comprobanteUrl ? `<img src="${r.comprobanteUrl}" alt="Comprobante" style="width:100%;max-width:300px">` : '<p>No hay comprobante registrado.</p>'}
-      `;
+
+      if (!reservaId) {
+        voucherDetail.innerHTML = '<p>Reserva no especificada.</p>';
+        return;
+      }
+
+      try {
+        const doc = await db.collection("reservas").doc(reservaId).get();
+        if (!doc.exists) {
+          voucherDetail.innerHTML = '<p>Reserva no encontrada.</p>';
+          return;
+        }
+
+        const r = doc.data();
+
+        // Mostrar horas correctamente (array)
+        const horas = Array.isArray(r.horas) ? r.horas.join(', ') : (r.hora || '');
+
+        // Fecha y hora de creación
+        let creadoStr = '';
+        if (r.creadoEn && r.creadoEn.toDate) {
+          const d = r.creadoEn.toDate();
+          creadoStr = `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+        }
+
+        // Comprobante en Base64
+        const comprobanteHTML = r.comprobanteBase64
+          ? `<img src="${r.comprobanteBase64}" alt="Comprobante de Pago">`
+          : '<p>No hay comprobante registrado.</p>';
+
+        voucherDetail.innerHTML = `
+          <h2>${r.nombreCancha || 'Cancha'}</h2>
+          <p><strong>Usuario:</strong> ${r.usuarioNombre || user.displayName || user.email}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Fecha de reserva:</strong> ${r.fecha}</p>
+          <p><strong>Horas:</strong> ${horas}</p>
+          <p><strong>Estado:</strong> ${r.estado || 'Pendiente'}</p>
+          <p><strong>Precio total:</strong> S/ ${r.precioTotal || 0}</p>
+          <p><strong>Adelanto pagado:</strong> S/ ${r.adelanto || 0}</p>
+          ${creadoStr ? `<p><strong>Hora de registro:</strong> ${creadoStr}</p>` : ''}
+          <p><strong>Comprobante:</strong></p>
+          ${comprobanteHTML}
+        `;
+      } catch (err) {
+        console.error(err);
+        voucherDetail.innerHTML = '<p>Error al cargar la reserva.</p>';
+      }
     });
   </script>
 </body>

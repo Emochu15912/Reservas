@@ -16,11 +16,14 @@
 
     header {
       background-color: #ffcc80;
-      padding: 1.5rem 2rem;
+      padding: 1rem 2rem;
       box-shadow: 0 3px 8px rgba(0,0,0,0.15);
       text-align: center;
       border-radius: 12px;
       margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     header h1 {
@@ -28,6 +31,24 @@
       font-weight: 700;
       font-size: 2rem;
       color: #4e342e;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .btn-volver {
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      background-color: #ffd54f;
+      color: #000;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-volver:hover {
+      background-color: #ffc107;
     }
 
     .container {
@@ -83,29 +104,15 @@
       color: white;
     }
 
-    .btn.aprobar {
-      background-color: #388e3c;
-    }
+    .btn.aprobar { background-color: #388e3c; }
+    .btn.aprobar:hover { background-color: #2e7d32; }
 
-    .btn.aprobar:hover {
-      background-color: #2e7d32;
-    }
-
-    .btn.rechazar {
-      background-color: #d32f2f;
-    }
-
-    .btn.rechazar:hover {
-      background-color: #b71c1c;
-    }
+    .btn.rechazar { background-color: #d32f2f; }
+    .btn.rechazar:hover { background-color: #b71c1c; }
 
     @media (max-width: 768px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
-      }
-      thead tr {
-        display: none;
-      }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead tr { display: none; }
       tbody tr {
         margin-bottom: 20px;
         border-radius: 10px;
@@ -130,15 +137,14 @@
         font-size: 0.75rem;
         top: 8px;
       }
-      .acciones {
-        text-align: center;
-      }
+      .acciones { text-align: center; }
     }
   </style>
 </head>
 
 <body>
   <header>
+    <button class="btn-volver" onclick="window.location.href='admin.html'">← Atrás</button>
     <h1>Gestión de Comprobantes de Pago</h1>
   </header>
 
@@ -159,14 +165,15 @@
       </tbody>
     </table>
   </section>
- <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
-<script src="../common/js/firebase-config.js"></script>  <!-- Sin type=module -->
-<script src="../common/js/auth.js"></script>             <!-- Sin type=module -->
-<script src="./js/admin-comprobantes.js"></script>       <!-- Sin type=module -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/auth.js"></script>
+  <script src="./js/admin-comprobantes.js"></script>
 
 </body>
 </html>
