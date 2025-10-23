@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ingreso - ReservaCancha</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+
+  <!-- FontAwesome Icons -->
+  <script src="https://kit.fontawesome.com/4c7a36c2c5.js" crossorigin="anonymous"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="src/common/css/styles.css" />
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <h1 class="logo">Reserva<span>Cancha</span> ⚽</h1>
+      <h2>Bienvenido</h2>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="email"><i class="fas fa-envelope"></i> Correo</label>
+          <input type="email" id="email" required placeholder="correo@ejemplo.com" autocomplete="username" />
+        </div>
+
+        <div class="input-group">
+          <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
+          <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password" />
+        </div>
+
+        <button type="submit" class="btn-primary">Iniciar Sesión</button>
+        <p class="text-small">¿No tienes cuenta? <a href="register.html">Regístrate aquí</a></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <!-- Firebase v8.x -->
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<!-- Tu configuración y lógica -->
+<script src="src/common/js/firebase-config.js"></script>
+<script src="src/common/js/auth.js"></script>
+
+</body>
+</html>
